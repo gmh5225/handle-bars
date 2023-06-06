@@ -5,9 +5,11 @@ use clap::{
     crate_authors, crate_description, crate_name, crate_version, Arg,
     Command,
 };
+use std::error::Error;
+use std::process::exit;
 
 
-pub fn get_cli_args() {
+pub fn get_cli_args() -> Result<ProcInfo, Box<dyn Error>> {
     let cli_args = Command::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
@@ -37,25 +39,27 @@ pub fn get_cli_args() {
         if cfg!(debug_assertions) {
             println!("[{}] Looking for process: {}", "i".green(), name.cyan());
         }
-        let p_info: ProcInfo = ProcInfo::pid_from_proc_name(name).unwrap();
-        println!("[{}] Found: {}", "i".green() , p_info);
+        return ProcInfo::pid_from_proc_name(name);
     }
 
     // Check if pid is specified
     else if pid.is_some() {
-        let __pid = pid.clone().unwrap();
+        let ppid = pid.clone().unwrap();
         if cfg!(debug_assertions) {
             let _pid: String = pid.clone().unwrap().to_string();
             println!("[{}] Looking for pid:\t{}", "i".green(), _pid.cyan());
         }
+        return ProcInfo::proc_name_from_pid(ppid);
     }
 
     else {
         println!(
-            "[!] Invalid Usage\n[!] Use {}/{} flag for usage",
+            "[{}] Invalid Usage\n[!] Use {}/{} flag for usage",
+            "!".red(),
             "-h".red().bold(),
             "--help".red().bold()
         );
+        exit(-1);
     }
 
 } 
