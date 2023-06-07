@@ -1,12 +1,13 @@
 mod cli;
 mod pinfo;
+mod enumhandles;
 use colored::Colorize;
 use std::process::exit;
 
 fn main() {
-    let _p_info = match cli::get_cli_args() {
+    let p_info = match cli::get_cli_args() {
         Ok(v) => {
-            println!("[{}] Found: {}", "i".green(), v);
+            print!("[{}] Found: {}", "i".green(), v);
             v
         }
 
@@ -16,4 +17,6 @@ fn main() {
             exit(-1);
         }
     }; 
+
+    enumhandles::find_handles(p_info.pid);
 }
