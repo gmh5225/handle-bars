@@ -4,6 +4,8 @@
 _NtQuerySystemInformation NtQuerySystemInformation;
 _NtDuplicateObject NtDuplicateObject;
 _NtQueryObject NtQueryObject;
+_RtlInitUnicodeString RtlInitUnicodeString;
+_RtlEqualUnicodeString RtlEqualUnicodeString;
 
 void _dprintf(const char *format, ...)
 {
@@ -54,8 +56,9 @@ int resolve_functions() {
     NtQuerySystemInformation = get_lib_proc_addr("ntdll.dll", "NtQuerySystemInformation");
     NtDuplicateObject = get_lib_proc_addr("ntdll.dll", "NtDuplicateObject");
     NtQueryObject = get_lib_proc_addr("ntdll.dll", "NtQueryObject");
-
-    if (NtQuerySystemInformation == NULL || NtDuplicateObject == NULL || NtQueryObject == NULL) {
+    RtlInitUnicodeString = get_lib_proc_addr("ntdll.dll", "RtlInitUnicodeString");
+    RtlEqualUnicodeString = get_lib_proc_addr("ntdll.dll", "RtlEqualUnicodeString");
+    if (RtlInitUnicodeString == NULL || RtlEqualUnicodeString == NULL || NtQuerySystemInformation == NULL || NtDuplicateObject == NULL || NtQueryObject == NULL) {
         return -1;
     }
 
@@ -104,6 +107,12 @@ int fetch_handles(DWORD pid) {
     NTSTATUS status;
     ULONG handleInfoSize = 0x10000;
     PSYSTEM_HANDLE_INFORMATION hInfo;
+    UNICODE_STRING pProcess, pThread, pFile, pKey;
+
+    RtlInitUnicodeString(&pKey, L"Key");
+    RtlInitUnicodeString(&pFile, L"File");
+    RtlInitUnicodeString(&pThread, L"Thread");
+    RtlInitUnicodeString(&pProcess, L"Process");
 
     // Resolve Function Names
     if (resolve_functions() != 0) {
@@ -160,10 +169,7 @@ int fetch_handles(DWORD pid) {
         }
     }
 
-    _dprintf("[i] Number of handles found: %d", hInfo->HandleCount);
-    #ifndef DEBUG
-        printf("[i] Number of handles found: %d\n", hInfo->HandleCount);
-    #endif
+    _dprintf("[i] Total umber of handles found: %d", hInfo->HandleCount);
 
     for (int i = 0; i < hInfo->HandleCount; i++) {
         ULONG returnLength;
@@ -320,6 +326,24 @@ int fetch_handles(DWORD pid) {
                 objectTypeInfo->Name.Buffer);
             #endif
 
+        }
+
+        // Operations with Handles
+        if (RtlEqualUnicodeString(&objectTypeInfo->Name, &pProcess, TRUE)) {
+            // Do Something with a Process Handle
+        }
+        else if (RtlEqualUnicodeString(&objectTypeInfo->Name, &pThread, TRUE) ) {
+            // Do something with a thread handle
+            // HANDLE hThread = (HANDLE)handle.Handle;
+        }
+        else if (RtlEqualUnicodeString(&objectTypeInfo->Name, &pFile, TRUE) ) {
+            // Do something with file handle
+        }
+        else if (RtlEqualUnicodeString(&objectTypeInfo->Name, &pKey, TRUE) ) {
+            // Do Something with registry key
+        }
+        else {
+            continue;
         }
 
         free(objectNameInfo);

@@ -42,7 +42,18 @@ typedef struct _UNICODE_STRING {
     USHORT MaximumLength;
     PWSTR Buffer;
 } UNICODE_STRING, *PUNICODE_STRING;
- 
+
+typedef const UNICODE_STRING* PCUNICODE_STRING;
+typedef BOOLEAN (NTAPI* _RtlEqualUnicodeString)(
+	PUNICODE_STRING String1,
+	PCUNICODE_STRING String2,
+	BOOLEAN CaseInSensitive
+);
+typedef void (WINAPI* _RtlInitUnicodeString)(
+PUNICODE_STRING DestinationString,
+PCWSTR SourceString
+);
+
 typedef struct _SYSTEM_HANDLE {
     ULONG ProcessId;
     BYTE ObjectTypeNumber;
