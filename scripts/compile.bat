@@ -11,8 +11,8 @@ mkdir .\target\debug
 mkdir .\target\release
 
 echo [i] Compiling C Sources
-@REM cl.exe /c /DDEBUG /I .\src\c\includes .\src\c\enumhandles.c
-cl.exe /c /I .\src\c\includes .\src\c\enumhandles.c
+cl.exe /c /DDEBUG /I .\src\c\includes .\src\c\enumhandles.c
+@REM cl.exe /c /I .\src\c\includes .\src\c\enumhandles.c
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo [i] Creating Library
