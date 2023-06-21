@@ -1,5 +1,4 @@
 use crate::pinfo::ProcInfo;
-use colored::Colorize;
 use clap::{
     value_parser,
     crate_authors, crate_description, crate_name, crate_version, Arg,
@@ -37,7 +36,7 @@ pub fn get_cli_args() -> Result<ProcInfo, Box<dyn Error>> {
     if pname.is_some() {
         let name = pname.unwrap();
         if cfg!(debug_assertions) {
-            println!("[{}] Looking for process: {}", "i".green(), name.cyan());
+            println!("[i] Looking for process: {}", name);
         }
         return ProcInfo::pid_from_proc_name(name);
     }
@@ -47,18 +46,13 @@ pub fn get_cli_args() -> Result<ProcInfo, Box<dyn Error>> {
         let ppid = pid.clone().unwrap();
         if cfg!(debug_assertions) {
             let _pid: String = pid.clone().unwrap().to_string();
-            println!("[{}] Looking for pid:\t{}", "i".green(), _pid.cyan());
+            println!("[i] Looking for pid:\t{}", _pid);
         }
         return ProcInfo::proc_name_from_pid(ppid);
     }
 
     else {
-        println!(
-            "[{}] Invalid Usage\n[!] Use {}/{} flag for usage",
-            "!".red(),
-            "-h".red().bold(),
-            "--help".red().bold()
-        );
+        println!("[!] Invalid Usage\n[!] Use -h/--help flag for usage");
         exit(-1);
     }
 

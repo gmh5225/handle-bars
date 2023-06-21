@@ -8,9 +8,11 @@ cargo clean
 mkdir .\out\
 mkdir .\target
 mkdir .\target\debug
+mkdir .\target\release
 
 echo [i] Compiling C Sources
-cl.exe /c /DNDEBUG /I .\src\c\includes .\src\c\enumhandles.c
+@REM cl.exe /c /DDEBUG /I .\src\c\includes .\src\c\enumhandles.c
+cl.exe /c /I .\src\c\includes .\src\c\enumhandles.c
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo [i] Creating Library
@@ -19,7 +21,9 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo [i] Copying library
 copy .\out\rustydump.lib .\target\debug\
+@REM copy .\out\rustydump.lib .\target\release\
 
 del enumhandles.obj
 echo [i] Compiling Debug Version
 cargo build
+@REM cargo build --release

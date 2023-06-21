@@ -1,6 +1,5 @@
 use std::fmt;
 use std::error::Error;
-use colored::Colorize;
 use std::ffi::CString;
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::winnt::{HANDLE, PROCESS_ALL_ACCESS};
@@ -15,9 +14,7 @@ pub struct ProcInfo {
 
 impl fmt::Display for ProcInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let _name = format!("{}", self.name.as_str().bold().blue());
-        let _pid:  String = format!("{}", self.pid.to_string().red());
-        write!(f, "{} ({})\n", _name.green(), _pid.yellow())
+        write!(f, "{} ({})\n", self.name.as_str(), self.pid)
     }
 }
 
@@ -48,12 +45,12 @@ impl ProcInfo {
         }
         
         if cfg!(debug_assertions) {
-            println!("[{}] Acquired Snapshot", "i".green());
+            println!("[i] Acquired Snapshot");
         }
 
         entry.dwSize = std::mem::size_of::<PROCESSENTRY32>() as u32;
         if cfg!(debug_assertions) {
-            println!("[{}] Initialized {} struct", "i".green(), "PROCESSENTRY32".red());
+            println!("[i] Initialized PROCESSENTRY32 struct");
         }
 
         if unsafe { Process32First(snapshot, &mut entry) } != 0 {
@@ -68,12 +65,10 @@ impl ProcInfo {
                 };
 
                 if cfg!(debug_assertions) {    
-                    let _p_pid = entry.th32ProcessID.to_string();
                     println!(
-                        "[{}] Found Process Executable: {} ({})", 
-                        "i".green(), 
-                        exe_file_name.to_str().unwrap().bright_magenta(), 
-                        _p_pid.yellow()
+                        "[i] Found Process Executable: {} ({})", 
+                        exe_file_name.to_str().unwrap(),
+                        entry.th32ProcessID
                     );
                 }
 
@@ -123,12 +118,12 @@ impl ProcInfo {
         }
         
         if cfg!(debug_assertions) {
-            println!("[{}] Acquired Snapshot", "i".green());
+            println!("[i] Acquired Snapshot");
         }
 
         entry.dwSize = std::mem::size_of::<PROCESSENTRY32>() as u32;
         if cfg!(debug_assertions) {
-            println!("[{}] Initialized {} struct", "i".green(), "PROCESSENTRY32".red());
+            println!("[i] Initialized PROCESSENTRY32 struct");
         }
 
         if unsafe { Process32First(snapshot, &mut entry) } != 0 {
@@ -145,10 +140,9 @@ impl ProcInfo {
                 if cfg!(debug_assertions) {    
                     let _p_pid = entry.th32ProcessID.to_string();
                     println!(
-                        "[{}] Found PID: {} ({})", 
-                        "i".green(), 
-                        _p_pid.yellow(),
-                        exe_file_name.to_str().unwrap().bright_magenta(),
+                        "[i] Found PID: {} ({})", 
+                        entry.th32ProcessID,
+                        exe_file_name.to_str().unwrap(),
                     );
                 }
 
