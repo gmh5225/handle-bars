@@ -108,17 +108,17 @@ int fetch_handles(DWORD pid) {
     ULONG handleInfoSize = 0x10000;
     PSYSTEM_HANDLE_INFORMATION hInfo;
     UNICODE_STRING pProcess, pThread, pFile, pKey;
-
-    RtlInitUnicodeString(&pKey, L"Key");
-    RtlInitUnicodeString(&pFile, L"File");
-    RtlInitUnicodeString(&pThread, L"Thread");
-    RtlInitUnicodeString(&pProcess, L"Process");
-
     // Resolve Function Names
     if (resolve_functions() != 0) {
         _deprintf("[!] Failed to resolve Nt functions\n");
         return -1;
     }
+
+
+    RtlInitUnicodeString(&pKey, L"Key");
+    RtlInitUnicodeString(&pFile, L"File");
+    RtlInitUnicodeString(&pThread, L"Thread");
+    RtlInitUnicodeString(&pProcess, L"Process");
 
     // Open Handle to Process ID
     hProcess = OpenProcess(
@@ -304,15 +304,7 @@ int fetch_handles(DWORD pid) {
                 objectTypeInfo->Name.Buffer,
                 objectName.Length / 2,
                 objectName.Buffer
-                );
-            #ifndef DEBUG
-                printf("[>] 0x%08x | %.*S: %.*S\n", 
-                handle.Handle, 
-                objectTypeInfo->Name.Length / 2,
-                objectTypeInfo->Name.Buffer,
-                objectName.Length / 2,
-                objectName.Buffer);
-            #endif
+            );
         }
         else {
             // Print something else.
@@ -320,12 +312,6 @@ int fetch_handles(DWORD pid) {
                 " (%.*S: [unnamed])",
                 objectTypeInfo->Name.Length / 2,
                 objectTypeInfo->Name.Buffer);
-
-            #ifndef DEBUG
-                printf("[>] 0x%08x | %.*S: [unnamed]\n", handle.Handle,  objectTypeInfo->Name.Length / 2,
-                objectTypeInfo->Name.Buffer);
-            #endif
-
         }
 
         // Operations with Handles
@@ -338,7 +324,26 @@ int fetch_handles(DWORD pid) {
         }
         else if (RtlEqualUnicodeString(&objectTypeInfo->Name, &pFile, TRUE) ) {
             // Do something with file handle
+            printf("[i] Filename: %.*S (0x%x)\n", objectName.Length / 2, objectName.Buffer, handle.Handle);
+            const int MAX_LENGTH = 10;
+            char buffer[1000];
+            DWORD bytesRead;
+           
+           HANDLE hFileMapping = CreateFileMappingA(
+                   (HANDLE)handle.Handle,
+                    NULL,
+                    PAGE_READONLY,
+                    0,
+                    0,
+                    NULL
+                );
+            if (hFileMapping==NULL) {
+                printf("Oops\n");
+            }
+            CloseHandle(hFileMapping);
+
         }
+
         else if (RtlEqualUnicodeString(&objectTypeInfo->Name, &pKey, TRUE) ) {
             // Do Something with registry key
         }

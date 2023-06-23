@@ -4,9 +4,10 @@ mod enumhandles;
 use std::process::exit;
 
 fn main() {
-    let p_info = match cli::get_cli_args() {
+    let (p_info, _verbose) = match cli::get_cli_args() {
         Ok(v) => {
-            print!("[i] Found: {}", v);
+            print!("[i] Found: {}", v.0);
+
             v
         }
 
