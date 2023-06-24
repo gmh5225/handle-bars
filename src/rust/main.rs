@@ -1,22 +1,29 @@
 mod cli;
-mod pinfo;
-mod enumhandles;
+mod proc;
 use std::process::exit;
 
-fn main() {
-    let (p_info, _verbose) = match cli::get_cli_args() {
-        Ok(v) => {
-            print!("[i] Found: {}", v.0);
+#[link(name = ".\\out\\rustydump", kind = "static")]
 
+extern "C" {
+    fn fetch_handles(pid: u32, verbose: bool) -> i32;
+}
+
+fn main() {
+    // Parse command line options
+    let cli_args = cli::CliArgs::parse();
+    let p_info = match proc::ProcInfo::parse(&(cli_args.indicator), cli_args.verbose) {
+        Ok(v) => {
+            print!("[i] Target Process: {}", v);
             v
         }
-
         Err(e) => {
-            let err: String = format!("{}", e);
-            eprintln!("[!] Error Occured as: {}", err);
+            println!("[!] Error occured as {}", e);
             exit(-1);
         }
-    }; 
+    };
 
-    enumhandles::find_handles(p_info.pid);
+    unsafe {
+        fetch_handles(p_info.pid, cli_args.verbose);
+    }
+    
 }

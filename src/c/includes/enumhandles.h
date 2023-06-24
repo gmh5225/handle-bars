@@ -5,7 +5,8 @@
 
 #include <windows.h>
 #include <stdio.h>
- 
+#include <handleapi.h>
+
 #define NT_SUCCESS(x) ((x) >= 0)
 #define STATUS_INFO_LENGTH_MISMATCH 0xc0000004
  
@@ -14,6 +15,7 @@
 #define ObjectNameInformation 1
 #define ObjectTypeInformation 2
  
+BOOL VERBOSE = FALSE;
 typedef NTSTATUS (NTAPI *_NtQuerySystemInformation)(
     ULONG SystemInformationClass,
     PVOID SystemInformation,
